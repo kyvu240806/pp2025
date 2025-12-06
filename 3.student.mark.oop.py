@@ -1,3 +1,6 @@
+import math
+import numpy as np
+
 class Entity:
    def __init__(self):
       self.__id = ""
@@ -18,10 +21,17 @@ class Student(Entity):
    def __init__(self):
       super().__init__()
       self.__dob = ""
+      self.__gpa = 0
 
    def input(self):
       super().input()
       self.__dob = input("DoB: ")
+
+   def setGPA(self, gpa):
+      self.__gpa = gpa
+
+   def __lt__(self, other):
+      return self.__gpa < other.__gpa
 
    def print(self):
       super().print()
@@ -35,6 +45,10 @@ class Course(Entity):
 
    def input(self):
       super().input()
+      self.__credits = int(input("Number of credits: "))
+
+   def getCredits(self):
+      return self.__credits
 
 class Mark: #not used
    def __init__(self):
@@ -77,9 +91,40 @@ class School:
       for i in range(numStudents):
          for j in range(numCourses):
             mark = float(input(f"{self.__courses[j].getName()} mark of {self.__students[i].getName()}: "))
-            self.__marks[i][j] = mark
+            #round the mark to 1-digit decimal
+            roundedMark = math.floor(10*mark)/10
+            self.__marks[i][j] = roundedMark
 
-   def print(self):
+   def calGPA(self):
+      #calculate the GPAs
+      numStudents = len(self.__students)
+      numCourses = len(self.__courses)
+      credits = [0 for _ in range(numCourses)]
+
+      for i in range(numCourses):
+         credits[i] = self.__courses[i].getCredits()
+
+      totalCredits = sum(credits)
+      formattedCredits = [credits for _ in range(numStudents)]
+
+      listMarks = np.array(self.__marks)
+      listCredits = np.array(formattedCredits)
+      listGPA0 = listMarks*listCredits
+      listGPA = [sum(listGPA0[i])/totalCredits for i in range(numStudents)]
+
+      #set the GPAs for students
+      for i in range(numStudents):
+         self.__students[i].setGPA(listGPA[i])
+
+      #sort the students list by GPAs
+      self.__students.sort(reverse = True)
+
+   def printStudents(self):
+      numStudents = len(self.__students)
+      for i in range(numStudents):
+         self.__students[i].print()
+
+   def printMark(self):
       numStudents = len(self.__students)
       numCourses = len(self.__courses)
       for i in range(numStudents):
@@ -88,4 +133,5 @@ class School:
 
 c = School()
 c.input()
-c.print()
+c.calGPA()
+c.printStudents()
