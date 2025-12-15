@@ -110,7 +110,7 @@ class School:
       listMarks = np.array(self.__marks)
       listCredits = np.array(formattedCredits)
       listGPA0 = listMarks*listCredits
-      listGPA = [sum(listGPA0[i])/totalCredits for i in range(numStudents)]
+      listGPA = [math.floor(10*sum(listGPA0[i])/totalCredits)/10 for i in range(numStudents)]
 
       #set the GPAs for students
       for i in range(numStudents):
